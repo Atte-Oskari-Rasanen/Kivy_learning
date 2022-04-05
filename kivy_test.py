@@ -6,7 +6,7 @@ from kivy.uix.button import Button
 from kivy.properties import BooleanProperty, ListProperty
 from kivy.animation import Animation
 from kivy.uix.image import Image, AsyncImage
-
+#https://realpython.com/mobile-app-kivy-python/#displaying-an-image
 kv = """
 <DragButton>:
 
@@ -18,6 +18,7 @@ kv = """
 BoxLayout:
     BoxLayout:
         orientation: 'vertical'
+
         DragButton:
             text: ' '
             icon_size: 200, 200
@@ -27,6 +28,7 @@ BoxLayout:
                     size: self.icon_size
                     #allow_stretch: True
                     pos: self.pos[0] + self.width - self.icon_size[0], self.pos[1] + self.icon_size[1] / 2
+
 
         # DragButton:
         #     text: ''
@@ -46,6 +48,7 @@ BoxLayout:
         id:right
 #        orientation: 'vertical'
         Image:
+            id: remove_zone
             source: '/home/atte/Documents/Kivy_stuff/assets/ims/spain.png'
 
             # canvas:
@@ -55,6 +58,7 @@ BoxLayout:
             #         pos: self.pos[0] + self.width - self.icon_size[0], self.pos[1] + self.icon_size[1] / 2
 
         Image:
+            id: remove_zone
             source: '/home/atte/Documents/Kivy_stuff/assets/ims/sweden.png'
 
             # orientation: 'vertical'
@@ -99,7 +103,7 @@ class DragButton(DragBehavior, Button):
         if self.dragging:
             self.opacity = 1
             self.dragging = False
-            if self.collide_widget(app.root.ids.remove_zone):
+            if self.collide_widget(app.root.ids.remove_zone):  # refers to the image in kv string, removes the image
                 self.parent.remove_widget(self)
             else:
                 anim = Animation(pos=self.original_pos, duration=1)
