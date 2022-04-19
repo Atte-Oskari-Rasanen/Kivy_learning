@@ -8,6 +8,7 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.image import Image
+from kivy.properties import NumericProperty
 
 from kivy.base import runTouchApp
 from kivy.lang import Builder
@@ -22,45 +23,46 @@ Builder.load_string('''
             size: self.size
             radius: [20,]
     orientation: "vertical"
-    padding:30
+    padding:40
 
-    ScrollView:
+    # ScrollView:
 
-        GridLayout:
-            cols:1
-            size_hint_y:None
-            row_default_height:root.height*.15
-            height:self.minimum_height
-            DragImage:
-                source:'/home/atte/Documents/Kivy_stuff/assets/ims/cow2.png'
-            DragImage:
-                source:'/home/atte/Documents/Kivy_stuff/assets/ims/fox.png'
-
-            DragImage:
+    #     GridLayout:
+    #         cols:1
+    #         size_hint_y:None
+    #         row_default_height:root.height*.15
+    #         height:self.minimum_height
+    #         MoveableImage:
+    #             source:'/home/atte/Documents/Kivy_stuff/assets/ims/cow2.png'
+    #         MoveableImage:
+    #             source:'/home/atte/Documents/Kivy_stuff/assets/ims/fox.png'
 
 
-<DragImage>:
+
+<MoveableImage>:
     drag_rectangle: self.x, self.y, self.width, self.height
     drag_timeout: 100000000
     drag_distance: 0
     size_hint:None,None
-    size:234,34
-    canvas:
-        Color:
-            rgb:1,0,1
-        Rectangle:
-            pos: self.pos
-            size: self.size
+    size:34,34
+    
+    #this will draw a canvas rectangle around the image, not needed
+    # canvas:
+    #     # Color:
+    #     #     rgb:1,0,1
+    #     Rectangle:
+    #         pos: self.pos
+    #         size: self.size
 
 <MainLayout>:
     canvas:
-        Color:
-            rgb:1,1,1
+        # Color:
+        #     rgb:1,1,1
         Rectangle:
             size: self.size
             pos: self.pos
     WidgetMenu:
-        size_hint: 0.35,0.9
+        size_hint: 0.15,0.15
 
 ''')
 
@@ -75,6 +77,12 @@ class MainLayout(FloatLayout):
     
         self.add_widget(
             country(source='/home/atte/Documents/Kivy_stuff/assets/ims/sweden.png', size_hint=(.8, .5), pos_hint ={'x':.5, 'y':.5}))
+        self.add_widget(
+            MoveableImage(source='/home/atte/Documents/Kivy_stuff/assets/ims/cow2.png'))
+        self.add_widget(
+            MoveableImage(source='/home/atte/Documents/Kivy_stuff/assets/ims/fox.png'))
+        # if country.collide_widget(MoveableImage):
+        #     print("!!!")
 
 
 class country(Image):
@@ -82,23 +90,41 @@ class country(Image):
 
 class WidgetMenu(BoxLayout):
     pass
-class DragImage(DragBehavior,FloatLayout):
-    def on_touch_down(self,touch):
-        if not self.collide_point(*touch.pos):
-            return False
-        workspace = self.parent.parent.parent.parent
-        grid = self.parent
-        menu = self.parent.parent.parent
-        if "MainLayout" in str(workspace):
-            grid.remove_widget(self)
-            workspace.remove_widget(menu)
+class MoveableImage(DragBehavior,FloatLayout, Image):
+    def __init__(self, **kwargs):
+        super(MoveableImage, self).__init__(**kwargs)
+        #super(MoveableImage, self).on_touch_down(touch)
+        self.drag_timeout = 10000000
+        self.opacity=0.7
+        self.drag_distance = 0
+        self.drag_rectangle = [self.x, self.y, self.width, self.height]
+        #opacity = NumericProperty(0.8)
 
-            # the following code assumes that workspace is the entire Window
-            self.x = Window.mouse_pos[0] - (touch.pos[0] - self.x)
-            self.y = Window.mouse_pos[1] - (touch.pos[1] - self.y)
-            workspace.add_widget(self)
-            touch.pos = Window.mouse_pos
-        return super(DragImage, self).on_touch_down(touch)
+        self.size_hint = (.13, .13)  
+        self.keep_ratio = True
+        self.allow_stretch = True  
+    def on_pos(self, *args):
+        self.drag_rectangle = [self.x, self.y, self.width, self.height]
+
+    def on_size(self, *args):
+        self.drag_rectangle = [self.x, self.y, self.width, self.height]
+
+    # def on_touch_down(self,touch):
+    #     if not self.collide_point(*touch.pos):
+    #         return False
+    #     workspace = self.parent.parent.parent.parent
+    #     grid = self.parent
+    #     menu = self.parent.parent.parent
+    #     if "MainLayout" in str(workspace):
+    #         grid.remove_widget(self)
+    #         workspace.remove_widget(menu)
+
+    #         # the following code assumes that workspace is the entire Window
+    #         self.x = Window.mouse_pos[0] - (touch.pos[0] - self.x)
+    #         self.y = Window.mouse_pos[1] - (touch.pos[1] - self.y)
+    #         workspace.add_widget(self)
+    #         touch.pos = Window.mouse_pos
+    #     return super(MoveableImage, self).on_touch_down(touch)
 class ScrollApp(App):
     def build(self):
         return MainLayout()
